@@ -4,6 +4,7 @@ A framework WordPress to system development. For now, focused on REST API.
 ## Installation
 
 Download this plugin and paste in wp-content/plugins. Enable in WordPress panel.
+Run `composer install` to load libries
 You can use the framework in a plugin or theme. Just have the following bootstrap:
 
 ```php
@@ -172,17 +173,17 @@ Route::group('foo', function () {
         
     });
     
-    http://example.com/api/app/foo/foobar
+    //http://example.com/api/app/foo/foobar
     Route::get('foobar', function (WP_REST_Request $request) {
         
     });
 
-    http://example.com/api/app/foo/foobar
+    //http://example.com/api/app/foo/foobar
     Route::post('foobar', function (WP_REST_Request $request) {
         
     });
     
-    http://example.com/api/app/foo
+    //http://example.com/api/app/foo
     Route::get('', function (WP_REST_Request $request) {
         
     });
