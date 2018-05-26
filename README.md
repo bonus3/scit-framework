@@ -207,7 +207,7 @@ To groups, too is disponible `auth` and `validation`, aplly in all routes of tha
 
 ## Controllers <a name="controllers"></a>
 
-SCIT Framwork flow MVC pattern. Thus, the `Controller` folder must exist in its folder structure and all controllers class should extend the class.
+SCIT Framwork follow MVC pattern. Thus, the `Controller` folder must exist in its folder structure and all controllers class should extend the class.
 
 ```php
 namespace NamespaceProject\Controller;
