@@ -30,6 +30,7 @@ class WordPress {
     
     public function setRequestObject($r, $result, $request, $obj) {
         Route::$request = $request;
+        return $r;
     }
     
     private function includeFiles() {

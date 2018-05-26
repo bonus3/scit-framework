@@ -8,10 +8,6 @@ defined('SCIT_PATH') or die('Error');
 
 class Basic implements IAuth {
     
-    public function __construct() {
-        //add_filter('rest_authentication_errors', [$this, 'auth']);
-    }
-    
     public function auth() {
         $authorizarion = apache_request_headers()['Authorization'];
         $authorizarion = explode(' ', $authorizarion);
@@ -43,6 +39,9 @@ class Basic implements IAuth {
             return false;
         }
         $user = get_user_by('ID', $data[0]);
+        if (!$user) {
+            return false;
+        }
         return password_verify($this->getStringDecrypt($user), $data[1]) === false ? $user : false;
     }
     

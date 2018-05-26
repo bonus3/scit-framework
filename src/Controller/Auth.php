@@ -11,7 +11,7 @@ class Auth extends Controller {
         $password = $request->get_param('password');
         
         $user = get_user_by('login', $username);
-        if (wp_check_password($password, $user->user_pass, $user->ID)) {
+        if ($user && wp_check_password($password, $user->user_pass, $user->ID)) {
             $token = \SCIT\Auth\Basic::generateToken($user);
             
             return ['token' => $token];

@@ -19,7 +19,11 @@ class RouteChild extends Router {
     
     public function setCallback($callback) {
         if (is_array($callback)) {
-            $this->callback = [new $callback[0](), $callback[1]];
+            $obj = new $callback[0]();
+            if (!is_subclass_of($callback[0], \SCIT\Controller\Controller::class)) {
+                throw new \Exception(get_class($obj) . " class not extends Controller class");
+            }
+            $this->callback = [$obj, $callback[1]];
         } else {
             $this->callback = $callback;
         }

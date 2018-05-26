@@ -4,7 +4,8 @@ A framework WordPress to system development. For now, focused on REST API.
 ## Installation
 
 Download this plugin and paste in wp-content/plugins. Enable in WordPress panel.
-Run `composer install` to load libries
+Run `composer install` to load libries.
+
 You can use the framework in a plugin or theme. Just have the following bootstrap:
 
 ```php
@@ -47,6 +48,14 @@ Route::get('endpoint', function (WP_REST_Request $request) {
 ```
 
 You can pass any callback valid in second parameter.
+The calback can be:
+
+- A function anonimous
+- A function name
+- A controller method. To do this, pass an array `['controller class name', 'method name']. The contrller object will instancied.
+
+See [constrollers](#controllers) documentation.
+
 The callback receive a `WP_REST_Request` object as parameter.
 And we can also use other HTTP verbs.
 
@@ -57,6 +66,9 @@ Route::put('endpoint', callback);
 Route::delete('endpoint', callback);
 
 ```
+
+OBS.: All files in `Routes` folder in your project will included automatically. So you can group your routes into files.
+
 
 ### Custom parameters
 
@@ -192,3 +204,23 @@ Route::group('foo', function () {
 ```
 
 To groups, too is disponible `auth` and `validation`, aplly in all routes of that group.
+
+## Controllers <a name="controllers"></a>
+
+SCIT Framwork flow MVC pattern. Thus, the `Controller` folder must exist in its folder structure and all controllers class should extend the class.
+
+```php
+namespace NamespaceProject\Controller;
+
+use SCIT\Controller\Controller;
+
+class MyController extends Controller {
+
+	public function __construct() {
+		parent::__construct();
+	}
+
+}
+```
+
+The controller is instancied when associed the a route.
