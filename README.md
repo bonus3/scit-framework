@@ -24,6 +24,11 @@ The `SCIT\WordPress\WordPress` contructor receive two parameters:
 
 After, the functionalities of the framework  will be enabled.
 
+**Note** that initialization occurs in the `plugins_loaded` action, 
+so actions that must be performed before this hook should be handled separately from the SCIT Framework.
+
+For example, the `register_activation_hook()` function must be executed outside the framework.
+
 ## Route
 
 In the building an API, routes are essential. All requests will has the endpoint base:
@@ -52,7 +57,7 @@ The calback can be:
 
 - A function anonimous
 - A function name
-- A controller method. To do this, pass an array `['controller class name', 'method name']. The contrller object will instancied.
+- A controller method. To do this, pass an array `['controller class name', 'method name']. The controller object will instancied.
 
 See [constrollers](#controllers) documentation.
 
@@ -153,7 +158,11 @@ if succefull, will return a token.
 ```
 
 {
-    "token": "1|$2y$10$ZzYUTtXXYGjcVyWraTKp3uqUJaM78TQcSz.6T0/WHXkFDpmVBwT3S"
+    "code": "success_login",
+    "data": {
+        "token": "1|$2y$10$wYBRFDkhMTDtSiZhlHBx6uDL7Xb3zxNa8hxmEpQzm91PZ4IM5tL8K"
+    },
+    "error": false
 }
 
 ```
@@ -171,6 +180,27 @@ Route::get('foo', function (WP_REST_Request $request) {
 ```
 
 Pass the parameter `basic` is required.
+
+#### Route only to especific roles or caps
+
+To force the route be accesible only to especific roles or caps, pass an array to second param in `auth` method.
+In the array you can have `roles` or `caps` keys.
+
+```php
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'roles' => ['author'] ]); //Only author role
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'caps' => ['manage_options'] ]); //Only manage_options caps
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'roles' => ['author'], 'caps' => ['manage_options'] ]); //Only author with permission to manage_options
+
+```
 
 ### Group of routes
 
