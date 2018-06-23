@@ -33,9 +33,24 @@ abstract class Route {
         return self::endpoint($route, \WP_REST_Server::DELETABLE, $callback);
     }
     
+    public static function resource($route, $controller, $create = []) {
+        return Route::group($route, function () use ($route, $controller, $create) {
+            if (empty($create) || in_array('index', $create)) {
+                Route::get('{id?}', [$controller, 'index']);
+            }
+            if (empty($create) || in_array('create', $create)) {
+                Route::post('', [$controller, 'create']);
+            }
+            if (empty($create) || in_array('update', $create)) {
+                Route::put('{id}', [$controller, 'update']);
+            }
+            if (empty($create) || in_array('destroy', $create)) {
+                Route::delete('{id}', [$controller, 'destroy']);
+            }
+        });
+    }
+    
     public static function endpoint($route, $method, $callback) {
-        //echo memory_get_usage() / 1024;
-        //echo " - ";
         $obj = self::extractRoute(debug_backtrace());
         if ($obj instanceof RouteChild) {
             $obj->setMethod($method);
@@ -46,10 +61,10 @@ abstract class Route {
     
     private static function extractRoute($backtrace) {
         $endpoint = $backtrace[0]['args'][0];
-        if ($group = ($backtrace[0]['function'] === 'group')) {
+        if ($backtrace[0]['function'] === 'group') {
             $obj = new RouteGroup();
             self::setGroup($backtrace, $obj);
-        } else {
+        } else if ($backtrace[0]['function'] !== 'resource') {
             $obj = new RouteChild();
             self::$routes_call[] = $obj;
         }
@@ -65,7 +80,7 @@ abstract class Route {
     private static function getGroup($backtrace) {
         $route = '';
         for ($i = count($backtrace) - 1; $i > 1; $i--){
-            if ($backtrace[$i]['class'] === Route::class) {
+            if ($backtrace[$i]['class'] === Route::class && $backtrace[$i]['function'] === 'group') {
                 $route = $route . '/' . $backtrace[$i]['args'][0];
             }
         }
@@ -75,7 +90,7 @@ abstract class Route {
     private static function setGroup($backtrace, &$obj) {
         $route = '';
         for ($i = count($backtrace) - 1; $i >= 0; $i--){
-            if ($backtrace[$i]['class'] === Route::class) {
+            if ($backtrace[$i]['class'] === Route::class && $backtrace[$i]['function'] === 'group') {
                 $route = $route . '/' . $backtrace[$i]['args'][0];
             }
         }

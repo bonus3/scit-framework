@@ -8,15 +8,27 @@ defined('SCIT_PATH') or die('Error');
 
 class Basic implements IAuth {
     
+    private $args;
+    private $route;
+    
+    public function __construct($route, $args = null) {
+        $this->route = $route;
+        $this->args = $args;
+    }
+    
     public function auth() {
-        $authorizarion = apache_request_headers()['Authorization'];
-        $authorizarion = explode(' ', $authorizarion);
-        $token = isset($authorizarion[1]) && $authorizarion[0] === 'Basic' ? $authorizarion[1] : '';
+        $authorization = apache_request_headers()['Authorization'];
+        $authorization = explode(' ', $authorization);
+        $token = isset($authorization[1]) && $authorization[0] === 'Basic' ? $authorization[1] : '';
         $user = $this->checkToken($token);
         if ($user === false) {
             return false;
         }
         wp_set_current_user($user->ID);
+        if (!$this->validate()) {
+            wp_logout();
+            return false;
+        }
         return true;
     }
     
@@ -39,10 +51,34 @@ class Basic implements IAuth {
             return false;
         }
         $user = get_user_by('ID', $data[0]);
-        if (!$user) {
+        if (!$user || is_wp_error($user)) {
             return false;
         }
-        return password_verify($this->getStringDecrypt($user), $data[1]) === false ? $user : false;
+        return password_verify($this->getStringDecrypt($user), $data[1]) === true ? $user : false;
+    }
+    
+    private function validate() {
+        return $this->validateRoles() && $this->validateCaps();
+    }
+    
+    private function validateRoles() {
+        if (isset($this->args['roles']) && is_array($this->args['roles'])) {
+            return !empty(array_intersect($this->args['roles'], wp_get_current_user()->roles));
+        }
+        return true;
+    }
+    
+    private function validateCaps() {
+        if (isset($this->args['caps']) && is_array($this->args['caps'])) {
+            $validate = true;
+            foreach ($this->args['caps'] as $caps) {
+                if (!current_user_can($caps)) {
+                    $validate = false;
+                }
+            }
+            return $validate;
+        }
+        return true;
     }
     
 }

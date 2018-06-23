@@ -35,11 +35,12 @@ class RouteChild extends Router {
         $status = 200;
         $headers = [];
         if ($result instanceof \WP_Error) {
-            $data = $result;
+            return $result;
         } else if (isset($result['data'])) {
             $data = $result['data'];
-            $status = isset($result['status']) ? $result['status'] : null;
+            $status = isset($result['status']) ? $result['status'] : $status;
             $headers = isset($result['headers']) ? $result['headers'] : [];
+            $data['error'] = !($status >= 200 && $status < 300);
         } else {
             $data = $result;
         }

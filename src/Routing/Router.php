@@ -66,10 +66,13 @@ class Router {
         $method = '';
         foreach ($package as $key => $part) {
             if ($key !== $last) {
-                if ($part === 'basic') {
-                    $package_formated .= "\\SCIT\\Validation\\Basic";
-                } else {
-                    $package_formated .= ucfirst($part) . "\\";
+                switch ($part) {
+                    case 'basic':
+                        $package_formated .= "\\SCIT\\Validation\\Basic";
+                        break;
+                    default:
+                        $package_formated .= ucfirst($part) . "\\";
+                        break;
                 }
             } else {
                 $method = $part;
@@ -143,11 +146,11 @@ class Router {
         return false;
     }
     
-    public function auth($params) {
+    public function auth($type, $args = null) {
         if (!isset($this->args['permission'])) {
             $this->args['permission'] = [];
         }
-        $middleware = new Auth($params, $this);
+        $middleware = new Auth($type, $this, $args);
         $this->args['permission'][] = $middleware->getAuth();
         return $this;
     }
@@ -161,7 +164,7 @@ class Router {
         }
         $permissions = array_merge(
             isset($this->args['permission']) ? $this->args['permission'] : [],
-            $this->parent ? $this->parent->permissions() : []
+                $this->parent ? $this->parent->permissions() : []
         );
         return function () use ($permissions) {
             $valid = true;

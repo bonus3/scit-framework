@@ -10,15 +10,15 @@ class Auth extends Middleware {
     
     private $auth;
     
-    public function __construct($type, $routeObject = null) {
+    public function __construct($type, $routeObject = null, $args = null) {
         parent::__construct();
         switch ($type) {
             case 'basic':
-                $this->auth = new Athentication\Basic($routeObject);
+                $this->auth = new Athentication\Basic($routeObject, $args);
                 break;
             default:
                 if (class_exists($type)) {
-                    $this->auth = new $type();
+                    $this->auth = new $type($routeObject, $args);
                 }
                 break;
         }

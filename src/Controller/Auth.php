@@ -14,9 +14,20 @@ class Auth extends Controller {
         if ($user && wp_check_password($password, $user->user_pass, $user->ID)) {
             $token = \SCIT\Auth\Basic::generateToken($user);
             
-            return ['token' => $token];
+            return [
+                'data' => [
+                    'code' => 'success_login',
+                    'data' => ['token' => $token]
+                ]
+            ];
         }
-        return new \WP_Error('invalid_login', 'Username or password invalid.', ['status' => 403]);
+        return [
+            'data' => [
+                'code' => 'invalid_login',
+                'data' => __('Username or password invalid.', 'cupomapi')
+            ],
+            'status' => 403
+        ];
     }
     
 }

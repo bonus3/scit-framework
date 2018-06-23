@@ -24,6 +24,11 @@ The `SCIT\WordPress\WordPress` contructor receive two parameters:
 
 After, the functionalities of the framework  will be enabled.
 
+**Note** that initialization occurs in the `plugins_loaded` action, 
+so actions that must be performed before this hook should be handled separately from the SCIT Framework.
+
+For example, the `register_activation_hook()` function must be executed outside the framework.
+
 ## Route
 
 In the building an API, routes are essential. All requests will has the endpoint base:
@@ -52,7 +57,7 @@ The calback can be:
 
 - A function anonimous
 - A function name
-- A controller method. To do this, pass an array `['controller class name', 'method name']. The contrller object will instancied.
+- A controller method. To do this, pass an array `['controller class name', 'method name']. The controller object will instancied.
 
 See [constrollers](#controllers) documentation.
 
@@ -144,6 +149,65 @@ Route::post('endpoint', function (WP_REST_Request $request) {
 
 The `basic.required` is of the SCIT Framework. If you need the parameter to be required, this validator is required. Only other validators are not enough.
 
+### Route resource
+
+Many endpoints are for doing "CRUD" information. Thinking about this, there is the `resource` method, 
+which creates some standard endpoints. In the first parameter passes the endpoint and 
+in the second parameter the controller.
+
+```php
+
+Route::resource('users', \Project\Controller\Test::class);
+
+```
+
+The above resource creates the following endpoints:
+
+```
+
+GET    http://example.com/api/app/users
+GET    http://example.com/api/app/users/{param}
+POST   http://example.com/api/app/users
+PUT    http://example.com/api/app/users/{param}
+DELETE http://example.com/api/app/users/{param}
+
+```
+
+The controller must have the following methods:
+
+- index   => To GET method
+- create  => To POST method
+- update  => To PUT method
+- destroy => To DELETE method
+
+```php
+
+namespace Project\Controller;
+
+use SCIT\Controller\Controller;
+
+class Test extends Controller {
+    
+    public function index(WP_REST_Request $request) {
+        //GET method
+    }
+    
+    public function create(WP_REST_Request $request) {
+        //POST method
+    }
+    
+    public function update(WP_REST_Request $request) {
+        //PUT method
+    }
+    
+    public function destroy(WP_REST_Request $request) {
+        //DELETE method
+    }
+    
+}
+
+```
+
 ### Authentication
 
 The framework has the mecanism of login and check if user is logged.
@@ -153,7 +217,11 @@ if succefull, will return a token.
 ```
 
 {
-    "token": "1|$2y$10$ZzYUTtXXYGjcVyWraTKp3uqUJaM78TQcSz.6T0/WHXkFDpmVBwT3S"
+    "code": "success_login",
+    "data": {
+        "token": "1|$2y$10$wYBRFDkhMTDtSiZhlHBx6uDL7Xb3zxNa8hxmEpQzm91PZ4IM5tL8K"
+    },
+    "error": false
 }
 
 ```
@@ -171,6 +239,27 @@ Route::get('foo', function (WP_REST_Request $request) {
 ```
 
 Pass the parameter `basic` is required.
+
+#### Route only to especific roles or caps
+
+To force the route be accesible only to especific roles or caps, pass an array to second param in `auth` method.
+In the array you can have `roles` or `caps` keys.
+
+```php
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'roles' => ['author'] ]); //Only author role
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'caps' => ['manage_options'] ]); //Only manage_options caps
+
+Route::get('foo', function (WP_REST_Request $request) {
+    
+})->auth('basic', [ 'roles' => ['author'], 'caps' => ['manage_options'] ]); //Only author with permission to manage_options
+
+```
 
 ### Group of routes
 
