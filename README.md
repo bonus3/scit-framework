@@ -208,6 +208,8 @@ class Test extends Controller {
 
 ```
 
+You can use validation param, validation roles (look below) and authentication (look below) in resource.
+
 ### Authentication
 
 The framework has the mecanism of login and check if user is logged.
